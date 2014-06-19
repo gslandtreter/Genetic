@@ -10,8 +10,8 @@ namespace Genetic
     class Algoritm
     {
         //Configuração
-        double taxa_CrossOver = 0.65;
-        double taxa_Mutation = 0.10;
+        double taxa_CrossOver = 0.70;
+        double taxa_Mutation = 0.05;
         double tamanho_populacao; 
 
         //Dados
@@ -37,7 +37,8 @@ namespace Genetic
             population = new Hashtable();
             populationBuff = new Hashtable();
             solution = new Gene(grafo.GetNumNodes());
-            tamanho_populacao = grafo.GetNumNodes();
+            //tamanho_populacao = grafo.GetNumNodes();
+            tamanho_populacao = 300;
             startTime = DateTime.Now;
             this.grafo = grafo;
             GenerateRandomPopulation();
@@ -70,7 +71,7 @@ namespace Genetic
                 SolucaoIgual = 1;
             else
                 SolucaoIgual++;
-            return t.TotalMinutes >= 60 || SolucaoIgual > 500;
+            return t.TotalMinutes >= 10 || SolucaoIgual >= 500;
         }
 
         private void SelectCreate()
@@ -141,8 +142,6 @@ namespace Genetic
 
             //insere na nova população
             populationBuff.Add(populationBuff.Count, ind);
-
-
         }
 
         private void CopyBestOne(Gene ind1, Gene ind2)
@@ -258,9 +257,7 @@ namespace Genetic
                     }
                 }
                 population.Add(k, newInd);                
-            }
-            
-
+            } 
         }
 
         //Avalia toda a população        
