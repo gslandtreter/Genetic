@@ -13,6 +13,7 @@ namespace Genetic
         public float avaliationValueNormalizado;
         public float valorAcumulado =0;
 
+        static Random random = new Random();
 
         public Gene(int num)
         {
@@ -27,9 +28,27 @@ namespace Genetic
             individuo[pos] = num;        
         }
 
+        public void ShuffleIndividuo()
+        {
+            for (int i = individuo.Length; i > 1; i--)
+            {
+                // Pick random element to swap.
+                int j = Gene.random.Next(i); // 0 <= j <= i-1
+                // Swap.
+                int tmp = individuo[j];
+                individuo[j] = individuo[i - 1];
+                individuo[i - 1] = tmp;
+            }
+        }
+
+        public void InitializeIndividuo()
+        {
+            for(int i = 0; i < individuo.Length; i++)
+                individuo[i] = i;
+        }
+
         public bool ContainsNum(int num)
         {
-
             bool val = individuo.Contains(num);
 
             return val;
@@ -44,13 +63,18 @@ namespace Genetic
         // fazer as diferenças...
         public void AvaliateGene(Graph grafo)
         {
-            SetAvalia(0);
+            if (avaliationValue > 0)
+            {
+                //Item ja avaliado
+                return;
+            }
+
             for(int i=0;i<grafo.GetNodes().Count;i++)
             {
                 //TODO: Aqui ta dando indexOutOfRange por causa do -1 no CrossOver
-                for (int k = 0; k < ((Node)grafo.GetNodes()[i]).GetNeighbours().Count; k++)
+                for (int k = 0; k < ((Node)grafo.GetNodes()[individuo[i]]).GetNeighbours().Count; k++)
                 {
-                    avaliationValue += Math.Abs(individuo[i] - ((Node)grafo.GetNodes()[i]).GetNeighbours()[k].neighbour);
+                    avaliationValue += Math.Abs(individuo[i] - individuo[((Node)grafo.GetNodes()[individuo[i]]).GetNeighbours()[k].neighbour]);
                 }
             }
         }

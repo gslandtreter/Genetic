@@ -10,8 +10,8 @@ namespace Genetic
     class Algoritm
     {
         //Configuração
-        double taxa_CrossOver = 0.70;
-        double taxa_Mutation = 0.05;
+        double taxa_CrossOver = 0.80;
+        double taxa_Mutation = 0.10;
         double tamanho_populacao; 
 
         //Dados
@@ -38,13 +38,12 @@ namespace Genetic
             populationBuff = new Hashtable();
             solution = new Gene(grafo.GetNumNodes());
             //tamanho_populacao = grafo.GetNumNodes();
-            tamanho_populacao = 300;
+            tamanho_populacao = 100;
             startTime = DateTime.Now;
             this.grafo = grafo;
             GenerateRandomPopulation();
             AvaliateFunction();
             
-
             //loop principal
             while(CondicaoTermino()==false)
             {
@@ -117,7 +116,24 @@ namespace Genetic
 
             }
             // atualiza a população
-            population = populationBuff;
+            //population = populationBuff;
+
+            population.Clear();
+
+            foreach (DictionaryEntry item in populationBuff)
+            {
+                Gene geneAtual = (Gene)item.Value;
+                Gene novoGene = new Gene(geneAtual.individuo.Length);
+
+                geneAtual.individuo.CopyTo(novoGene.individuo, 0);
+                novoGene.avaliationValue = geneAtual.avaliationValue;
+                novoGene.avaliationValueNormalizado = geneAtual.avaliationValueNormalizado;
+                novoGene.valorAcumulado = 0;
+
+                population.Add(population.Count, novoGene);
+            }
+            populationBuff.Clear();
+            aptidaoAcumulada = 0;
         }
 
         // http://mnemstudio.org/genetic-algorithms-mutation.htm
@@ -125,7 +141,10 @@ namespace Genetic
         {
             int gene = staticRandom.Next(population.Count); // seleciona individuo randomicamente
 
-            Gene ind = (Gene)population[gene];
+            Gene indBuffer = (Gene)population[gene];
+            Gene ind = new Gene(indBuffer.individuo.Length);
+            indBuffer.individuo.CopyTo(ind.individuo, 0);
+
             gene = staticRandom.Next(ind.individuo.Length); //seleciona genes randomicamente
             int gene2 = staticRandom.Next(ind.individuo.Length);
             while (gene == gene2)
@@ -142,17 +161,32 @@ namespace Genetic
 
             //insere na nova população
             populationBuff.Add(populationBuff.Count, ind);
+
+            if (ind.individuo.Contains(-1))
+                Console.WriteLine("DeuMerda!");
         }
 
         private void CopyBestOne(Gene ind1, Gene ind2)
         {
             if (ind1.avaliationValue > ind2.avaliationValue)
             {
-                populationBuff.Add(populationBuff.Count, ind2);
+                Gene novoGene = new Gene(ind2.individuo.Length);
+                ind2.individuo.CopyTo(novoGene.individuo, 0);
+                novoGene.avaliationValue = ind2.avaliationValue;
+                populationBuff.Add(populationBuff.Count, novoGene);
+
+                if (novoGene.individuo.Contains(-1))
+                    Console.WriteLine("DeuMerda!");
             }
             else
             {
-                populationBuff.Add(populationBuff.Count, ind1);
+                Gene novoGene = new Gene(ind1.individuo.Length);
+                ind1.individuo.CopyTo(novoGene.individuo, 0);
+                novoGene.avaliationValue = ind1.avaliationValue;
+                populationBuff.Add(populationBuff.Count, novoGene);
+
+                if (novoGene.individuo.Contains(-1))
+                    Console.WriteLine("DeuMerda!");
             }            
         }
 
@@ -166,7 +200,7 @@ namespace Genetic
 
             int cut = staticRandom.Next(grafo.GetNumNodes());
             int cut2 = staticRandom.Next(grafo.GetNumNodes());
-        
+
 
             while (cut >= cut2) // faz com que os cortes não sejam no msm ponto
             {
@@ -178,7 +212,7 @@ namespace Genetic
             if (cut2 > cut)
             {
                 int[] buff1 = new int[this.grafo.GetNumNodes()];
-                int[] buff2 = new int[this.grafo.GetNumNodes()];               
+                int[] buff2 = new int[this.grafo.GetNumNodes()];
                 for (int i = cut; i < cut2; i++)
                 {
                     son.individuo[i] = ind1.individuo[i];
@@ -187,7 +221,7 @@ namespace Genetic
 
                 int coun = 0;
                 for (int k = cut2; k < this.grafo.GetNumNodes(); k++)   // registra a lista auxiliar para completar o filho , depois do corte
-                {   
+                {
                     buff1[coun] = ind1.individuo[k];
                     buff2[coun] = ind2.individuo[k];
                     coun++;
@@ -199,39 +233,41 @@ namespace Genetic
                     buff2[coun] = ind2.individuo[k];
                     coun++;
                 }
-                
+
                 //completa os filhos
-                int coun2 = 0;
-                for (int k = cut2; k < this.grafo.GetNumNodes(); k++)
-                { 
-                  if(son.individuo.Contains(buff2[coun2])==false)
-                  {
-                      son.individuo[k] = buff2[coun2];
-                  }
-                  if (son2.individuo.Contains(buff1[coun2]) == false)
-                  {
-                      son2.individuo[k] = buff1[coun2];
-                  }
-                  coun2++;
-                }
-                for (int k = 0; k < cut; k++)    
+                int coun2 = cut2;
+                int coun3 = cut2;
+
+                for (int k = 0; k < buff2.Length; k++)
                 {
-                    if (son.individuo.Contains(buff2[coun2]) == false)
+                    if (son.individuo.Contains(buff2[k]) == false)
                     {
-                        son.individuo[k] = buff2[coun2];
+                        son.individuo[coun2] = buff2[k];
+                        coun2++;
                     }
-                    if (son2.individuo.Contains(buff1[coun2]) == false)
+                    if (son2.individuo.Contains(buff1[k]) == false)
                     {
-                        son2.individuo[k] = buff1[coun2];
+                        son2.individuo[coun3] = buff1[k];
+                        coun3++;
                     }
-                    coun2++;                    
+                    if (coun2 >= buff2.Length)
+                    {
+                        coun2 = 0;
+                    }
+                    if (coun3 >= buff2.Length)
+                    {
+                        coun3 = 0;
+                    }
                 }
+
             }
             //adiciona elementos na população
             populationBuff.Add(populationBuff.Count, son);
             populationBuff.Add(populationBuff.Count, son2);
-          
-        }       
+
+            if (son.individuo.Contains(-1) || son2.individuo.Contains(-1))
+                Console.WriteLine("DeuMerda!");
+        }        
 
 
         // gera primeira população randomica, está gerando número randomico para cada vértice. Esse número randomico varia conforme o número de vértices disponíveis.
@@ -240,7 +276,7 @@ namespace Genetic
             for (int k = 0; k < this.tamanho_populacao; k++) // tamanho da população --> rever
             {
                 Gene newInd = new Gene(this.grafo.GetNumNodes());
-                int buffer;
+                /*int buffer;
 
                 for (int i = 0; i < this.grafo.GetNumNodes(); i += 1)
                 {
@@ -255,7 +291,9 @@ namespace Genetic
                             NotFounded = true;
                         }
                     }
-                }
+                }*/
+                newInd.InitializeIndividuo();
+                newInd.ShuffleIndividuo();
                 population.Add(k, newInd);                
             } 
         }
@@ -263,18 +301,24 @@ namespace Genetic
         //Avalia toda a população        
         public void AvaliateFunction()
         {         
-            
             foreach (DictionaryEntry gene in this.population)
             {
                 ((Gene)gene.Value).AvaliateGene(this.grafo);
                 if (isFirst == false) // seta solução arbitraria
-                {                   
-                    solution = ((Gene)gene.Value);
+                {
+                    Gene novaSolucao = ((Gene)gene.Value);
+                    solution = new Gene(novaSolucao.individuo.Length);
+                    novaSolucao.individuo.CopyTo(solution.individuo, 0);
+                    solution.avaliationValue = novaSolucao.avaliationValue;
+                    
                     isFirst=true;
                 }
                 if (((Gene)gene.Value).avaliationValue < solution.avaliationValue)  // guarda o melhor gene
                 {
-                    solution = ((Gene)gene.Value);
+                    Gene novaSolucao = ((Gene)gene.Value);
+                    solution = new Gene(novaSolucao.individuo.Length);
+                    novaSolucao.individuo.CopyTo(solution.individuo, 0);
+                    solution.avaliationValue = novaSolucao.avaliationValue;
                     EhDiferente = true;
                 }
             }
@@ -283,7 +327,7 @@ namespace Genetic
             foreach (DictionaryEntry gene in this.population)
             {
                 ((Gene)gene.Value).avaliationValueNormalizado = ((Gene)gene.Value).avaliationValue / solution.avaliationValue;
-                aptidaoAcumulada = aptidaoAcumulada + ((Gene)gene.Value).avaliationValueNormalizado;   // faz o somatório de tudo (usado para seleção)   
+                aptidaoAcumulada += ((Gene)gene.Value).avaliationValueNormalizado;   // faz o somatório de tudo (usado para seleção)   
                 ((Gene)gene.Value).valorAcumulado = aptidaoAcumulada;
             }
             // ordenar hastable conforme avaliationValue --> acho q n precisa
