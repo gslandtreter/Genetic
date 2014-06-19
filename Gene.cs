@@ -77,6 +77,8 @@ namespace Genetic
                     avaliationValue += Math.Abs(individuo[i] - individuo[((Node)grafo.GetNodes()[i]).GetNeighbours()[k].neighbour]);
                 }
             }
+
+            avaliationValue /= 2;
         }
 
 

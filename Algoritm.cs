@@ -38,7 +38,7 @@ namespace Genetic
             populationBuff = new Hashtable();
             solution = new Gene(grafo.GetNumNodes());
             //tamanho_populacao = grafo.GetNumNodes();
-            tamanho_populacao = 300;
+            tamanho_populacao = 200;
             startTime = DateTime.Now;
             this.grafo = grafo;
             GenerateRandomPopulation();
@@ -70,23 +70,32 @@ namespace Genetic
                 SolucaoIgual = 1;
             else
                 SolucaoIgual++;
-            return t.TotalMinutes >= 10 || SolucaoIgual >= 500;
+            return t.TotalMinutes >= 10 || SolucaoIgual >= 300;
         }
 
         private void SelectCreate()
         {
+            List<Gene> listaPop = population.Values.Cast<Gene>().ToList();
+            listaPop = listaPop.OrderBy(t => t.avaliationValue).ToList();
+
             while (populationBuff.Count <= tamanho_populacao)
             {
-                double buffer, buffer2;
-                buffer = staticRandom.NextDouble() * (aptidaoAcumulada);
-                buffer2 = staticRandom.NextDouble() * (aptidaoAcumulada);
+                int firstIndex, secondIndex;
 
-                while (buffer == buffer2)   // garante que os individuos sejam diferentes.
+                firstIndex = staticRandom.Next(listaPop.Count / 3);
+                secondIndex = staticRandom.Next(listaPop.Count / 3);
+
+                /*double buffer, buffer2;
+                buffer = staticRandom.NextDouble() * (aptidaoAcumulada);
+                buffer2 = staticRandom.NextDouble() * (aptidaoAcumulada);*/
+
+                while (firstIndex == secondIndex)   // garante que os individuos sejam diferentes.
                 {
-                    buffer2 = staticRandom.NextDouble() * (aptidaoAcumulada);
+                    secondIndex = staticRandom.Next(listaPop.Count / 3);
                 }
+
                 // seleciona dois individuos
-                double limiteInferior = 0;
+                /*double limiteInferior = 0;
                 Gene ind1 = new Gene(this.grafo.GetNumNodes());
                 Gene ind2 = new Gene(this.grafo.GetNumNodes());
 
@@ -101,8 +110,10 @@ namespace Genetic
                         ind2 = (Gene)ind.Value;
                     }
                     limiteInferior = ((Gene)ind.Value).valorAcumulado;
-                }
+                }*/
 
+                Gene ind1 = listaPop[firstIndex];
+                Gene ind2 = listaPop[secondIndex];
 
                 // confere taxa de crossOver -> tá no alg do alemão
                 if (staticRandom.NextDouble() <= taxa_CrossOver)
@@ -324,12 +335,12 @@ namespace Genetic
             }
           
             // normaliza a aptidão
-            foreach (DictionaryEntry gene in this.population)
+            /*foreach (DictionaryEntry gene in this.population)
             {
                 ((Gene)gene.Value).avaliationValueNormalizado = ((Gene)gene.Value).avaliationValue / solution.avaliationValue;
                 aptidaoAcumulada += ((Gene)gene.Value).avaliationValueNormalizado;   // faz o somatório de tudo (usado para seleção)   
                 ((Gene)gene.Value).valorAcumulado = aptidaoAcumulada;
-            }
+            }*/
             // ordenar hastable conforme avaliationValue --> acho q n precisa
             
            

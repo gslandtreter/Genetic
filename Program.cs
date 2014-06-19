@@ -9,7 +9,7 @@ namespace Genetic
     {
         static void Main(string[] args)
         {
-            Graph grafo = Graph.LoadFromFile("Instancias/grafodosmanos.gra");
+            Graph grafo = Graph.LoadFromFile("Instancias/bintree10.gra");
 
             Console.WriteLine("Leu grafo do arquivo: Vertices: {0}, Arestas: {1}",
                 grafo.GetNumNodes(), grafo.GetNumEdges());
