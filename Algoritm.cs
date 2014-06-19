@@ -10,8 +10,8 @@ namespace Genetic
     class Algoritm
     {
         //Configuração
-        double taxa_CrossOver = 0.80;
-        double taxa_Mutation = 0.10;
+        double taxa_CrossOver = 0.75;
+        double taxa_Mutation = 0.05;
         double tamanho_populacao; 
 
         //Dados
@@ -38,7 +38,7 @@ namespace Genetic
             populationBuff = new Hashtable();
             solution = new Gene(grafo.GetNumNodes());
             //tamanho_populacao = grafo.GetNumNodes();
-            tamanho_populacao = 100;
+            tamanho_populacao = 300;
             startTime = DateTime.Now;
             this.grafo = grafo;
             GenerateRandomPopulation();

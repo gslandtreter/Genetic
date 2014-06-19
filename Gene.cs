@@ -72,9 +72,9 @@ namespace Genetic
             for(int i=0;i<grafo.GetNodes().Count;i++)
             {
                 //TODO: Aqui ta dando indexOutOfRange por causa do -1 no CrossOver
-                for (int k = 0; k < ((Node)grafo.GetNodes()[individuo[i]]).GetNeighbours().Count; k++)
+                for (int k = 0; k < ((Node)grafo.GetNodes()[i]).GetNeighbours().Count; k++)
                 {
-                    avaliationValue += Math.Abs(individuo[i] - individuo[((Node)grafo.GetNodes()[individuo[i]]).GetNeighbours()[k].neighbour]);
+                    avaliationValue += Math.Abs(individuo[i] - individuo[((Node)grafo.GetNodes()[i]).GetNeighbours()[k].neighbour]);
                 }
             }
         }
