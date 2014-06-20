@@ -9,7 +9,6 @@ namespace Genetic
     {
         public int neighbour;
         
-
         public Neighbour()
         {
             neighbour = 0;

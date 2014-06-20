@@ -8,7 +8,7 @@ namespace Genetic
 {
     class Node
     {
-        List<Neighbour> neighbours;
+        Hashtable neighbours;
         int index;
         int degree;
 
@@ -32,19 +32,19 @@ namespace Genetic
             return degree;
         }
 
-        public void SetNeighbours(List<Neighbour> newEdge)
+        public void SetNeighbours(Hashtable newEdge)
         {
             neighbours = newEdge;
         }
 
-        public List<Neighbour> GetNeighbours()
+        public Hashtable GetNeighbours()
         {
             return neighbours;
         }
 
         public Node()
         {
-            neighbours = new List<Neighbour>();
+            neighbours = new Hashtable();
             degree = 0;
         }
     }

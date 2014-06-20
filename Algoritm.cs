@@ -10,8 +10,8 @@ namespace Genetic
     class Algoritm
     {
         //Configuração
-        double taxa_CrossOver = 0.75;
-        double taxa_Mutation = 0.05;
+        double taxa_CrossOver = 0.80;
+        double taxa_Mutation = 0.10;
         double tamanho_populacao; 
 
         //Dados
@@ -38,7 +38,7 @@ namespace Genetic
             populationBuff = new Hashtable();
             solution = new Gene(grafo.GetNumNodes());
             //tamanho_populacao = grafo.GetNumNodes();
-            tamanho_populacao = 200;
+            tamanho_populacao = 50;
             startTime = DateTime.Now;
             this.grafo = grafo;
             GenerateRandomPopulation();
@@ -48,11 +48,13 @@ namespace Genetic
             while(CondicaoTermino()==false)
             {
                 EhDiferente = false;
-                SelectCreate();
+                //DateTime start = DateTime.Now;
+                SelectCreate();        
                 AvaliateFunction();
+                //TimeSpan spentTime = DateTime.Now - start;
+                //Console.WriteLine("Levei {0}ms.", spentTime.TotalMilliseconds);
             }
             PrintaResultado();
-
         }
 
         private void PrintaResultado()
@@ -70,7 +72,7 @@ namespace Genetic
                 SolucaoIgual = 1;
             else
                 SolucaoIgual++;
-            return t.TotalMinutes >= 10 || SolucaoIgual >= 300;
+            return t.TotalMinutes >= 15 || SolucaoIgual >= 500;
         }
 
         private void SelectCreate()
@@ -85,32 +87,12 @@ namespace Genetic
                 firstIndex = staticRandom.Next(listaPop.Count / 3);
                 secondIndex = staticRandom.Next(listaPop.Count / 3);
 
-                /*double buffer, buffer2;
-                buffer = staticRandom.NextDouble() * (aptidaoAcumulada);
-                buffer2 = staticRandom.NextDouble() * (aptidaoAcumulada);*/
-
                 while (firstIndex == secondIndex)   // garante que os individuos sejam diferentes.
                 {
                     secondIndex = staticRandom.Next(listaPop.Count / 3);
                 }
 
                 // seleciona dois individuos
-                /*double limiteInferior = 0;
-                Gene ind1 = new Gene(this.grafo.GetNumNodes());
-                Gene ind2 = new Gene(this.grafo.GetNumNodes());
-
-                foreach (DictionaryEntry ind in population)
-                {
-                    if (((Gene)ind.Value).valorAcumulado >= buffer && buffer >= limiteInferior)
-                    {
-                        ind1 = (Gene)ind.Value;
-                    }
-                    if (((Gene)ind.Value).valorAcumulado >= buffer2 && buffer2 >= limiteInferior)
-                    {
-                        ind2 = (Gene)ind.Value;
-                    }
-                    limiteInferior = ((Gene)ind.Value).valorAcumulado;
-                }*/
 
                 Gene ind1 = listaPop[firstIndex];
                 Gene ind2 = listaPop[secondIndex];
@@ -172,9 +154,6 @@ namespace Genetic
 
             //insere na nova população
             populationBuff.Add(populationBuff.Count, ind);
-
-            if (ind.individuo.Contains(-1))
-                Console.WriteLine("DeuMerda!");
         }
 
         private void CopyBestOne(Gene ind1, Gene ind2)
@@ -185,9 +164,6 @@ namespace Genetic
                 ind2.individuo.CopyTo(novoGene.individuo, 0);
                 novoGene.avaliationValue = ind2.avaliationValue;
                 populationBuff.Add(populationBuff.Count, novoGene);
-
-                if (novoGene.individuo.Contains(-1))
-                    Console.WriteLine("DeuMerda!");
             }
             else
             {
@@ -195,9 +171,6 @@ namespace Genetic
                 ind1.individuo.CopyTo(novoGene.individuo, 0);
                 novoGene.avaliationValue = ind1.avaliationValue;
                 populationBuff.Add(populationBuff.Count, novoGene);
-
-                if (novoGene.individuo.Contains(-1))
-                    Console.WriteLine("DeuMerda!");
             }            
         }
 
@@ -208,10 +181,8 @@ namespace Genetic
             Gene son = new Gene(this.grafo.GetNumNodes());
             Gene son2 = new Gene(this.grafo.GetNumNodes());
 
-
             int cut = staticRandom.Next(grafo.GetNumNodes());
             int cut2 = staticRandom.Next(grafo.GetNumNodes());
-
 
             while (cut >= cut2) // faz com que os cortes não sejam no msm ponto
             {
@@ -275,9 +246,6 @@ namespace Genetic
             //adiciona elementos na população
             populationBuff.Add(populationBuff.Count, son);
             populationBuff.Add(populationBuff.Count, son2);
-
-            if (son.individuo.Contains(-1) || son2.individuo.Contains(-1))
-                Console.WriteLine("DeuMerda!");
         }        
 
 
@@ -287,24 +255,10 @@ namespace Genetic
             for (int k = 0; k < this.tamanho_populacao; k++) // tamanho da população --> rever
             {
                 Gene newInd = new Gene(this.grafo.GetNumNodes());
-                /*int buffer;
 
-                for (int i = 0; i < this.grafo.GetNumNodes(); i += 1)
-                {
-
-                    bool NotFounded = false;
-                    while (NotFounded == false)
-                    {
-                        buffer = staticRandom.Next(grafo.GetNumNodes());
-                        if (newInd.ContainsNum(buffer) == false)
-                        {
-                            newInd.SetGen(i, buffer);
-                            NotFounded = true;
-                        }
-                    }
-                }*/
                 newInd.InitializeIndividuo();
                 newInd.ShuffleIndividuo();
+
                 population.Add(k, newInd);                
             } 
         }
@@ -333,17 +287,6 @@ namespace Genetic
                     EhDiferente = true;
                 }
             }
-          
-            // normaliza a aptidão
-            /*foreach (DictionaryEntry gene in this.population)
-            {
-                ((Gene)gene.Value).avaliationValueNormalizado = ((Gene)gene.Value).avaliationValue / solution.avaliationValue;
-                aptidaoAcumulada += ((Gene)gene.Value).avaliationValueNormalizado;   // faz o somatório de tudo (usado para seleção)   
-                ((Gene)gene.Value).valorAcumulado = aptidaoAcumulada;
-            }*/
-            // ordenar hastable conforme avaliationValue --> acho q n precisa
-            
-           
         } 
     }
 }

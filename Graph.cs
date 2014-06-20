@@ -79,7 +79,8 @@ namespace Genetic
             buffer = file.ReadLine();
             String[] edgeSplit = buffer.Split(' ');
 
-            int currentNode = 0;         
+            int currentNode = 0;
+            int currentEdge = 0;
 
             for (int i = 0; i < edgeSplit.Length; i += 1)
             {
@@ -96,9 +97,13 @@ namespace Genetic
                 Neighbour edge = new Neighbour(from);
 
                 if (((Node)newGraph.nodes[currentNode]).GetDegree() == ((Node)newGraph.nodes[currentNode]).GetNeighbours().Count)
+                {
                     currentNode++;
+                    currentEdge = 0;
+                }
 
-                ((Node)newGraph.nodes[currentNode]).GetNeighbours().Add(edge);
+                ((Node)newGraph.nodes[currentNode]).GetNeighbours().Add(currentEdge, edge);
+                currentEdge++;
 
             }
             // ultima linha do arquivo contém os indices dos vértices vizinhos de cada vértices --> não sei se pode complicar mas, ali em cima 
